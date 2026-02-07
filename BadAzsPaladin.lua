@@ -1,25 +1,23 @@
 -- [[ [|cffF58CBA|r]adAzs |cffF58CBAPaladin|r ]]
 -- Author:  ThePeregris
--- Version: 1.2 (Seal Selector)
+-- Version: 1.3 (Seal & Blessing Selector)
 -- Target:  Turtle WoW (1.12 / LUA 5.0)
 
-local BadAzsPalVersion = "|cffF58CBABadAzsPaladin v1.2|r"
+local BadAzsPalVersion = "|cffF58CBABadAzsPaladin v1.3|r"
 local _Cast = CastSpellByName
 
 -- ============================================================
 -- [ CONFIGURAÇÃO DINÂMICA ]
 -- ============================================================
--- A preferência de Selo agora é salva em BadAzsPalDB.Seal
--- Padrões de Backup:
-local MySeals = {
-    PROT = "Seal of Righteousness",
-    MANA = "Seal of Wisdom"
-}
+-- As preferências são salvas em BadAzsPalDB (Seal e Blessing)
 
 local MyAuras = {
     RET = "Sanctity Aura",
     PROT = "Retribution Aura"
 }
+
+-- Padrão de Mana para fallback
+local SealMana = "Seal of Wisdom"
 
 -- ============================================================
 -- [ INICIALIZAÇÃO ]
@@ -27,13 +25,15 @@ local MyAuras = {
 local loadFrame = CreateFrame("Frame")
 loadFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 loadFrame:SetScript("OnEvent", function()
-    if not BadAzsPalDB then BadAzsPalDB = { Seal = "Seal of Command" } end
-    -- Fallback se a variável estiver vazia
+    if not BadAzsPalDB then BadAzsPalDB = { Seal = "Seal of Command", Blessing = "Blessing of Might" } end
+    
+    -- Fallbacks de segurança
     if not BadAzsPalDB.Seal then BadAzsPalDB.Seal = "Seal of Command" end
+    if not BadAzsPalDB.Blessing then BadAzsPalDB.Blessing = "Blessing of Might" end
 
     DEFAULT_CHAT_FRAME:AddMessage(BadAzsPalVersion)
-    DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[Selo Atual]|r: " .. BadAzsPalDB.Seal)
-    DEFAULT_CHAT_FRAME:AddMessage("Use /badpal seal [soc | sor] para trocar.")
+    DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[Config]|r: " .. BadAzsPalDB.Seal .. " / " .. BadAzsPalDB.Blessing)
+    DEFAULT_CHAT_FRAME:AddMessage("Use /badpal para ver as opções.")
 end)
 
 -- Verifica se temos qualquer Selo ativo (Usando Helper Global)
@@ -85,12 +85,11 @@ function BadAzsRet()
     end
 
     -- 6. Re-Selo Dinâmico
-    -- Usa o selo definido em BadAzsPalDB.Seal
     if not BadAzs_HasSeal() then
-        if mana < 20 and BadAzs_Ready(MySeals.MANA) then
-            _Cast(MySeals.MANA)
+        if mana < 20 and BadAzs_Ready(SealMana) then
+            _Cast(SealMana)
         else
-            _Cast(BadAzsPalDB.Seal) -- AQUI ESTÁ A MUDANÇA
+            _Cast(BadAzsPalDB.Seal) -- Usa preferência salva
         end
         return
     end
@@ -142,18 +141,18 @@ function BadAzsProt()
 
     -- 6. Selo de Tank (Fixo em Righteousness para Threat consistente)
     if not BadAzs_HasSeal() then
-        if mana < 15 then _Cast(MySeals.MANA) else _Cast(MySeals.PROT) end
+        if mana < 15 then _Cast(SealMana) else _Cast("Seal of Righteousness") end
         return
     end
 end
 
 -- ============================================================
--- [ UTILITÁRIOS & BUFFS ]
+-- [ UTILITÁRIOS & BUFFS (ALT KEY) ]
 -- ============================================================
 function BadAzsBuffs()
-    if not UnitAffectingCombat("player") then
-        _Cast("Blessing of Might")
-    end
+    -- Tenta castar a blessing salva se não estiver em GCD global
+    -- Nota: Buffs podem ser castados em combate, removi a restrição de combate para flexibilidade
+    _Cast(BadAzsPalDB.Blessing)
 end
 
 -- ============================================================
@@ -173,25 +172,43 @@ SLASH_BADAZSPALCMD1 = "/badpal"
 SlashCmdList["BADAZSPALCMD"] = function(msg)
     msg = string.lower(msg)
     
+    -- [[ SELETOR DE SELOS ]]
     if string.find(msg, "seal soc") or string.find(msg, "seal command") then
         BadAzsPalDB.Seal = "Seal of Command"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Selo Principal: |cffFF0000Seal of Command|r")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Selo: |cffFF0000Seal of Command|r")
         
     elseif string.find(msg, "seal sor") or string.find(msg, "seal right") then
         BadAzsPalDB.Seal = "Seal of Righteousness"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Selo Principal: |cff00FFFFSeal of Righteousness|r")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Selo: |cff00FFFFSeal of Righteousness|r")
         
     elseif string.find(msg, "seal crusader") then
         BadAzsPalDB.Seal = "Seal of the Crusader"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Selo Principal: |cffFFFF00Seal of the Crusader|r")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Selo: |cffFFFF00Seal of the Crusader|r")
+    
+    -- [[ SELETOR DE BLESSINGS (Novo na v1.3) ]]
+    elseif string.find(msg, "bless might") then
+        BadAzsPalDB.Blessing = "Blessing of Might"
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Blessing (ALT): |cffFF0000Might|r")
+
+    elseif string.find(msg, "bless kings") then
+        BadAzsPalDB.Blessing = "Blessing of Kings"
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Blessing (ALT): |cffFFFFFFKings|r")
+
+    elseif string.find(msg, "bless wisdom") then
+        BadAzsPalDB.Blessing = "Blessing of Wisdom"
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Blessing (ALT): |cff0000FFWisdom|r")
+
+    elseif string.find(msg, "bless sanc") then
+        BadAzsPalDB.Blessing = "Blessing of Sanctuary"
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Blessing (ALT): |cffCCCCCCSanctuary|r")
         
     else
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs Paladin Config]|r")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs Paladin v1.3]|r")
         DEFAULT_CHAT_FRAME:AddMessage("Selo Atual: " .. BadAzsPalDB.Seal)
-        DEFAULT_CHAT_FRAME:AddMessage("Comandos:")
-        DEFAULT_CHAT_FRAME:AddMessage("/badpal seal soc      (Seal of Command - 2H)")
-        DEFAULT_CHAT_FRAME:AddMessage("/badpal seal sor      (Seal of Righteousness - 1H/SP)")
-        DEFAULT_CHAT_FRAME:AddMessage("/badpal seal crusader (Seal of the Crusader)")
+        DEFAULT_CHAT_FRAME:AddMessage("Blessing (ALT): " .. BadAzsPalDB.Blessing)
+        DEFAULT_CHAT_FRAME:AddMessage("--- Comandos ---")
+        DEFAULT_CHAT_FRAME:AddMessage("/badpal seal [soc | sor | crusader]")
+        DEFAULT_CHAT_FRAME:AddMessage("/badpal bless [might | kings | wisdom | sanc]")
     end
 end
 
