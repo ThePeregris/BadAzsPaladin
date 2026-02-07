@@ -8,17 +8,17 @@
 
 ## 1. TECHNICAL MANIFESTO | BadAzsPaladin
 
-**Version:** v1.3 (Seal & Blessing Selector)
-**Target:** Turtle WoW (Client 1.12.x – LUA 5.0)
-**Architecture:** Modular Holy Engine + Core Attack API
+**Version:** v1.3 (Seal & Blessing Selector)  
+**Target:** Turtle WoW (Client 1.12.x – LUA 5.0)  
+**Architecture:** Modular Holy Engine + Core Attack API  
 **Author:** **ThePeregris**
 
-**BadAzsPaladin** is a **Decision Support System (DSS)** focused on optimizing the **Seal and Judgement** cycle (Seal Twisting/Cycling).
+**BadAzsPaladin** is a **Decision Support System (DSS)** focused on optimizing the **Seal and Judgement** cycle (Seal Twisting/Cycling).  
 Unlike common "spam" scripts, this engine understands the **Turtle WoW** class changes, prioritizing abilities like *Crusader Strike* and *Holy Strike* to maximize DPS and Threat generation while keeping the player in control.
 
-✔️ **Auto-Seal Persistence**
-✔️ **Dynamic Seal Selector (New in v1.2)**
-✔️ Optimized for Turtle WoW Meta
+✔️ **Auto-Seal Persistence**  
+✔️ **Dynamic Seal & Blessing Selector (New in v1.3)**  
+✔️ Optimized for Turtle WoW Meta  
 
 ---
 
@@ -28,26 +28,26 @@ Unlike common "spam" scripts, this engine understands the **Turtle WoW** class c
 
 Utilizes the global `BadAzs_StartAttack()` infrastructure from the Core, ensuring:
 
-* Safe Auto-Attack start (White hit)
-* Prevention of "Attack Drop" when switching targets
-* Native integration with the Warrior module
+* Safe Auto-Attack start (White hit)  
+* Prevention of "Attack Drop" when switching targets  
+* Native integration with the Warrior module  
 
 ### 🔄 Seal & Judge Engine
 
 The heart of the Paladin is the Judgement cycle. The script manages this automatically:
 
-1. **Verification:** Checks if a Seal is active.
-2. **Judgement:** If a Seal is active and *Judgement* is ready → Executes Judgement.
-3. **Immediate Re-Seal:** In the next cycle (milliseconds later), the script detects the absence of the Seal and reapplies it immediately.
-4. **Mana Fallback:** If mana is critical (< 20%), it automatically swaps to *Seal of Wisdom* to recover resources.
+1. **Verification:** Checks if a Seal is active.  
+2. **Judgement:** If a Seal is active and *Judgement* is ready → Executes Judgement.  
+3. **Immediate Re-Seal:** In the next cycle (milliseconds later), the script detects the absence of the Seal and reapplies it immediately.  
+4. **Mana Fallback:** If mana is critical (< 20%), it automatically swaps to *Seal of Wisdom* to recover resources.  
 
 ### 🐢 Turtle WoW Meta Protocol
 
 The script was designed specifically for the server's class changes:
 
-* **Crusader Strike Priority:** Used on absolute *cooldown* (generates mana and damage).
-* **Holy Strike Dump:** Used as a *mana dump* when resources are high (> 60%), replacing the basic attack without resetting the swing timer.
-* **Execute (Hammer of Wrath):** Absolute priority when the target reaches 20% HP.
+* **Crusader Strike Priority:** Used on absolute *cooldown* (generates mana and damage).  
+* **Holy Strike Dump:** Used as a *mana dump* when resources are high (> 60%), replacing the basic attack without resetting the swing timer.  
+* **Execute (Hammer of Wrath):** Absolute priority when the target reaches 20% HP.  
 
 ---
 
