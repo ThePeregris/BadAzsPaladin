@@ -2,8 +2,8 @@
 ## Title: [|cff355E3BB|r]adAzs |cff32CD32Paladin|r
 ## Notes: Battle Analysis Driven Assistant Zmart System for Turtle WoW.
 ## Author: ThePeregris
-## Version: 1.0
-## SavedVariables: BadAzsDB
+## Version: 1.2 Seal Selectable
+## SavedVariables: BadAzsPalDB
 ## OptionalDeps: ItemRack, SP_SwingTimer, UnitXP_SP3_Addon
 
 BadAzsPaladin.lua
