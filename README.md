@@ -1,11 +1,14 @@
-# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v1.2)
+# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v1.3 Seal & Blessing Selector)
 
 **Battle Analysis Driven Assistant Zmart System**
 *Turtle WoW Edition – Core Integration*
+<a href="https://www.paypal.com/donate/?hosted_button_id=VLAFP6ZT8ATGU">
+  <img src="https://github.com/ThePeregris/MainAssets/blob/main/Donate_PayPal.png" alt="Tips Appreciated!" align="right" width="120" height="75">
+</a>
 
 ## 1. TECHNICAL MANIFESTO | BadAzsPaladin
 
-**Version:** v1.2 Seal Selectable
+**Version:** v1.3 (Seal & Blessing Selector)
 **Target:** Turtle WoW (Client 1.12.x – LUA 5.0)
 **Architecture:** Modular Holy Engine + Core Attack API
 **Author:** **ThePeregris**
@@ -134,8 +137,11 @@ BadAzsPaladin.lua
 | `/badpal seal soc` | 2H Weapon Mode (Command) |
 | `/badpal seal sor` | 1H Weapon Mode (Righteousness) |
 | `ALT + Macro` | Auto Self-Buff (Might) |
-
----
+| `/badpal bless might` | ALT key for Blessing of Might |
+| `/badpal bless kings` | ALT key for Blessing of Kings |
+| `/badpal bless wisdom` | ALT key for Blessing of Wisdom |
+| `/badpal bless sanc` | ALT key for Blessing of Sanctuary (Prot) |
+| ---
 
 ## BADAZS PHILOSOPHY
 
@@ -145,19 +151,20 @@ BadAzsPaladin.lua
 
 ---
 
-**BadAzsPaladin v1.2 (Turtle Edition)**
+**BadAzsPaladin v1.3 (Turtle Edition)**
 *Powered by Core Attack API*
+
 --------------------------
-PT-BR
+# PT-BR
 ---------------------------
-# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v1.2)
+# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v1.3 Selos e Bênçãos selecionáveis)
 
 **Battle Analysis Driven Assistant Zmart System**
 *Turtle WoW Edition – Core Integration*
 
 ## 1. TECHNICAL MANIFESTO | BadAzsPaladin
 
-**Version:** v1.2 Seal Selectable
+**Version:** v1.3 Seal & Blessing Selectable
 **Target:** Turtle WoW (Client 1.12.x – LUA 5.0)
 **Architecture:** Modular Holy Engine + Core Attack API
 **Author:** **ThePeregris**
@@ -166,7 +173,7 @@ O **BadAzsPaladin** é um **Decision Support System (DSS)** focado na otimizaç�
 Diferente de scripts comuns de "spam", este motor entende as mudanças do **Turtle WoW**, priorizando habilidades como *Crusader Strike* e *Holy Strike* para maximizar o DPS e a geração de Threat, mantendo o jogador no controle.
 
 ✔️ **Auto-Seal Persistence**
-✔️ **Seal Selector Dinâmico (Novo na v1.2)**
+✔️ **Seal & Blessing: Selector Dinâmico (Novo na v1.3)**
 ✔️ Otimizado para o Meta do Turtle WoW
 
 ---
@@ -241,7 +248,6 @@ Esqueça barras de ação lotadas de bênçãos.
 3. Seal of Righteousness (Sustentação Fixa)
 
 
-
 ### ⚔️ `/bret` — RETRIBUTION (DPS)
 
 **Função:** Burst Damage + Mana Efficiency
@@ -255,8 +261,6 @@ Esqueça barras de ação lotadas de bênçãos.
 3. **Seal Selecionado** (Command ou Righteousness via `/badpal`)
 4. Holy Strike (apenas com excesso de mana)
 
-
-
 ---
 
 ## 6. INSTALAÇÃO & DEPENDÊNCIAS
@@ -266,7 +270,7 @@ Esqueça barras de ação lotadas de bênçãos.
 É **obrigatório** carregar o Core antes do módulo Paladin:
 
 ```ini
-Core.lua
+BadAzsCore.lua
 BadAzsPaladin.lua
 
 ```
@@ -285,9 +289,12 @@ BadAzsPaladin.lua
 | `/bprot` | Protection/Tank Rotation |
 | `/badpal seal soc` | Modo Arma 2H (Command) |
 | `/badpal seal sor` | Modo Arma 1H (Righteousness) |
-| `ALT + Macro` | Auto Self-Buff (Might) |
-
----
+| `ALT + Macro` | Auto Self-Buff |
+| `/badpal bless might` | ALT para Blessing of Might |
+| `/badpal bless kings` | ALT para Blessing of Kings |
+| `/badpal bless wisdom` | ALT para Blessing of Wisdom |
+| `/badpal bless sanc` | ALT para Blessing of Sanctuary (Proteção) |
+| ---
 
 ## FILOSOFIA BADAZS
 
@@ -297,5 +304,5 @@ O **BadAzsPaladin** remove a micro-gestão chata de reaplicar selos a cada 8 seg
 
 ---
 
-**BadAzsPaladin v1.2 (Turtle Edition)**
+**BadAzsPaladin v1.3 (Turtle Edition)**
 *Powered by Core Attack API*
