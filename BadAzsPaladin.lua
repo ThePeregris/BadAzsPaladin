@@ -1,242 +1,310 @@
 -- [[ [|cffF58CBA|r]adAzs |cffF58CBAPaladin|r ]]
--- Author:  ThePeregris & Gemini
--- Version: 1.5 (Safe Mode & Turtle WoW)
+-- Author:  ThePeregris
+-- Version: 3.2 (Conflict Free / Slot Cache)
 -- Target:  Turtle WoW (1.12 / LUA 5.0)
+-- Requer:  BadAzsCore.lua (v1.8+)
 
-local BadAzsPalVersion = "|cffF58CBABadAzsPaladin v1.5 (Safe)|r"
+local BadAzsPalVersion = "|cffF58CBABadAzsPaladin v3.2|r"
 local _Cast = CastSpellByName
 
 -- ============================================================
--- [ CONFIGURAÇÃO DINÂMICA ]
+-- [ CONFIGURAÇÃO E DADOS ESTÁTICOS ]
 -- ============================================================
-local MyAuras = {
-    RET = "Sanctity Aura",
-    PROT = "Retribution Aura"
+
+-- Texturas para identificar Debuffs (Opener)
+local DebuffTextures = {
+    ["Seal of the Crusader"] = "HolySmite",
+    ["Seal of Wisdom"]       = "RighteousnessAura",
+    ["Seal of Light"]        = "HealingAura"
 }
-local SealMana = "Seal of Wisdom"
+
+local BlessingList = {
+    "Blessing of Might", "Blessing of Wisdom", "Blessing of Kings",
+    "Blessing of Sanctuary", "Blessing of Light", "Blessing of Salvation"
+}
+
+local GreaterBlessings = {
+    ["Blessing of Might"]     = "Greater Blessing of Might",
+    ["Blessing of Wisdom"]    = "Greater Blessing of Wisdom",
+    ["Blessing of Kings"]     = "Greater Blessing of Kings",
+    ["Blessing of Sanctuary"] = "Greater Blessing of Sanctuary",
+    ["Blessing of Light"]     = "Greater Blessing of Light",
+    ["Blessing of Salvation"] = "Greater Blessing of Salvation"
+}
+
+-- Cache para evitar Toggle de Holy Strike (Igual ao HS do Warrior)
+local BadAzs_SlotCache = { ["Holy Strike"] = nil }
+
+-- Scanner de Tooltip Isolado (Para ler nomes das magias nas barras)
+CreateFrame("GameTooltip", "BadAzsPal_Scanner", nil, "GameTooltipTemplate")
+BadAzsPal_Scanner:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 -- ============================================================
--- [ INICIALIZAÇÃO ]
+-- [1. INICIALIZAÇÃO, FILTROS E CACHE]
 -- ============================================================
 local loadFrame = CreateFrame("Frame")
 loadFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+loadFrame:RegisterEvent("ACTIONBAR_SLOT_CHANGED") -- Atualiza se mover magia
 loadFrame:SetScript("OnEvent", function()
-    if not BadAzsPalDB then BadAzsPalDB = { Seal = "Seal of Command", Blessing = "Blessing of Might" } end
     
-    -- Fallbacks de segurança
-    if not BadAzsPalDB.Seal then BadAzsPalDB.Seal = "Seal of Command" end
-    if not BadAzsPalDB.Blessing then BadAzsPalDB.Blessing = "Blessing of Might" end
+    -- Inicialização Única
+    if event == "PLAYER_ENTERING_WORLD" then
+        if not BadAzsPalDB then BadAzsPalDB = {} end
+        if not BadAzsPalDB.Opener then BadAzsPalDB.Opener = "Seal of the Crusader" end
+        if not BadAzsPalDB.Main   then BadAzsPalDB.Main = "Seal of Command" end
+        if not BadAzsPalDB.Blessing then BadAzsPalDB.Blessing = "Blessing of Might" end
+        if not BadAzsPalDB.BlessIndex then BadAzsPalDB.BlessIndex = 1 end
 
-    DEFAULT_CHAT_FRAME:AddMessage(BadAzsPalVersion)
-    DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[Config]|r: " .. BadAzsPalDB.Seal .. " / " .. BadAzsPalDB.Blessing)
-    DEFAULT_CHAT_FRAME:AddMessage("Use /badpal para ver as opções.")
+        -- Filtro de Spam do Chat (Mesma lógica do Warrior)
+        local block = {
+            "fail", "not ready", "enough rage", "enough mana", "Another action", "range", 
+            "No target", "recovered", "Ability", "Must be in", "nothing to attack", 
+            "facing", "Unknown unit", "Inventory is full", "Cannot equip", 
+            "Item is not ready", "Target needs to be", "You are dead", "spell is not learned"
+        }
+        for i = 1, 7 do
+            local frame = _G["ChatFrame"..i]
+            if frame and not frame.BHookedPal then
+                local original = frame.AddMessage
+                frame.AddMessage = function(self, msg, r, g, b, id)
+                    if msg and type(msg) == "string" then
+                        for _, p in pairs(block) do if string.find(msg, p) then return end end
+                    end
+                    original(self, msg, r, g, b, id)
+                end
+                frame.BHookedPal = true
+            end
+        end
+        DEFAULT_CHAT_FRAME:AddMessage(BadAzsPalVersion)
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[Config]|r Opener: " .. BadAzsPalDB.Opener .. " || Main: " .. BadAzsPalDB.Main)
+    end
+
+    -- Atualiza Cache de Slots (Procura onde está o Holy Strike)
+    -- Isso é vital para o Holy Strike não ficar ligando e desligando
+    if event == "PLAYER_ENTERING_WORLD" or event == "ACTIONBAR_SLOT_CHANGED" then
+        BadAzs_SlotCache["Holy Strike"] = nil
+        for i = 1, 120 do
+            if HasAction(i) then
+                local texture = GetActionTexture(i)
+                if texture and string.find(texture, "Spell_Holy_Imbue") then -- Textura do Holy Strike
+                    BadAzsPal_Scanner:SetAction(i)
+                    local name = BadAzsPal_ScannerTextLeft1:GetText()
+                    if name == "Holy Strike" then 
+                        BadAzs_SlotCache["Holy Strike"] = i 
+                        break -- Achou, pode parar
+                    end
+                end
+            end
+        end
+    end
 end)
 
--- Verifica se temos qualquer Selo ativo (Texturas Vanilla 1.12)
-local function BadAzs_HasSeal()
-    -- Depende do Core v1.7+ para BadAzs_HasBuff
-    if not BadAzs_HasBuff then return false end
+-- ============================================================
+-- [2. HELPERS DE CONFLITO E SEGURANÇA]
+-- ============================================================
 
-    return BadAzs_HasBuff("Ability_ThunderBolt") or             -- Righteousness
-           BadAzs_HasBuff("Ability_Warrior_InnerRage") or       -- Command
-           BadAzs_HasBuff("Spell_Holy_Holysmite") or            -- Crusader
-           BadAzs_HasBuff("Spell_Holy_RighteousnessAura") or    -- Wisdom/Light (Variante 1)
-           BadAzs_HasBuff("Spell_Holy_HealingAura")             -- Light (Variante 2)
+-- Verifica se "Next Melee" já está armado (Evita Toggle)
+local function BadAzs_IsQueued(spellName)
+    local slot = BadAzs_SlotCache[spellName]
+    if slot and IsCurrentAction(slot) then
+        return true
+    end
+    return false
+end
+
+-- Wrapper de Cast Seguro (Centralizado)
+local function BadAzs_Cast(t) 
+    if t == "Attack" then 
+        if BadAzs_StartAttack then BadAzs_StartAttack() else AttackTarget() end
+        return 
+    end
+    -- Proteção contra Toggle do Holy Strike
+    if t == "Holy Strike" and BadAzs_IsQueued("Holy Strike") then
+        return -- Já está ativo/brilhando, não aperta de novo
+    end
+    _Cast(t) 
+end
+
+-- Helpers do Paladino (Dependentes do Core 1.8)
+local function BadAzs_HasSeal()
+    if not BadAzs_HasBuff then return false end
+    return BadAzs_HasBuff("InnerRage") or 
+           BadAzs_HasBuff("ThunderBolt") or 
+           BadAzs_HasBuff("Holy_Righteousness") or 
+           BadAzs_HasBuff("SealOfFury")
+end
+
+local function BadAzs_TargetHasOpenerDebuff()
+    if not BadAzsPalDB or not BadAzs_TargetHasDebuff then return true end
+    local opener = BadAzsPalDB.Opener
+    if opener == "None" then return true end
+    
+    local texture = DebuffTextures[opener]
+    if not texture then return true end
+    return BadAzs_TargetHasDebuff(texture)
 end
 
 -- ============================================================
--- [ ROTAÇÃO RET (DPS) ]
+-- [3. SISTEMA SMART BUFF (ALT KEY)]
+-- ============================================================
+local function BadAzs_SmartBuff()
+    local spell = BadAzsPalDB.Blessing
+    if IsControlKeyDown() then
+        local greater = GreaterBlessings[spell]
+        if greater then spell = greater end
+    end
+    
+    local targetUnit = "player"
+    local restoreTarget = false
+    
+    if UnitExists("mouseover") and UnitIsFriend("player", "mouseover") and not UnitIsDead("mouseover") then
+        targetUnit = "mouseover"
+        restoreTarget = true
+    elseif UnitExists("target") and UnitIsFriend("player", "target") and not UnitIsDead("target") then
+        targetUnit = "target"
+        restoreTarget = false
+    end
+    
+    if restoreTarget then
+        TargetUnit(targetUnit); _Cast(spell); TargetLastTarget()
+    else
+        if targetUnit == "player" then TargetUnit("player") end 
+        _Cast(spell)
+        if targetUnit == "player" and UnitExists("target") then TargetLastTarget() end
+    end
+end
+
+-- ============================================================
+-- [4. ROTAÇÃO RETRIBUTION (DPS)]
 -- ============================================================
 function BadAzsRet()
-    -- 1. Segurança de Alvo: Se não tem alvo, tenta pegar e para.
-    if not UnitExists("target") then 
-        if BadAzs_StartAttack then BadAzs_StartAttack() else AttackTarget() end
+    if IsAltKeyDown() then BadAzs_SmartBuff(); return end
+    
+    BadAzs_Cast("Attack")
+    UIErrorsFrame:Clear()
+    
+    -- Proteção contra Core ausente
+    if not BadAzs_GetMana or not BadAzs_Ready then 
+        DEFAULT_CHAT_FRAME:AddMessage("BadAzsCore not loaded!")
         return 
     end
     
-    -- Inicia Combate
-    if BadAzs_StartAttack then BadAzs_StartAttack() else AttackTarget() end
-    UIErrorsFrame:Clear()
+    local mana = BadAzs_GetMana()      
+    local thp = BadAzs_GetTargetHP()   
+    local targetType = UnitCreatureType("target")
     
-    -- 2. Coleta de Dados Segura (Fallback se Core falhar)
-    local mana = 0
-    if BadAzs_GetMana then mana = BadAzs_GetMana() else mana = UnitMana("player") end -- Fallback simples
+    -- 1. Aura
+    if not BadAzs_HasBuff("Sanctity") and not UnitIsMounted("player") then BadAzs_Cast("Sanctity Aura") end
 
-    local thp = 100
-    if BadAzs_GetTargetHP then thp = BadAzs_GetTargetHP() end
+    -- 2. Execute
+    if thp <= 20 and BadAzs_Ready("Hammer of Wrath") then BadAzs_Cast("Hammer of Wrath"); return end
+
+    -- 3. Crusader Strike
+    if BadAzs_Ready("Crusader Strike") then BadAzs_Cast("Crusader Strike"); return end
+
+    -- 4. Exorcism
+    if (targetType == "Undead" or targetType == "Demon") and BadAzs_Ready("Exorcism") then 
+        BadAzs_Cast("Exorcism"); return 
+    end
+
+    -- 5. Lógica Seal/Judge
+    local OpenerDone = BadAzs_TargetHasOpenerDebuff()
+    local DesiredSeal = BadAzsPalDB.Main
     
-    -- Segurança para UnitCreatureType (evita erro nil)
-    local targetType = UnitCreatureType("target") or "Unknown"
-    
-    -- 3. Aura Check (Prioridade Zero)
-    if BadAzs_HasBuff and not BadAzs_HasBuff("Sanctity") and not UnitIsMounted("player") then 
-        _Cast(MyAuras.RET) 
-    end
+    if not OpenerDone and BadAzsPalDB.Opener ~= "None" then DesiredSeal = BadAzsPalDB.Opener end
+    if mana < 15 then DesiredSeal = "Seal of Wisdom" end
 
-    -- 4. Execute (Hammer of Wrath)
-    -- Só checa se HP < 20
-    if thp > 0 and thp <= 20 and BadAzs_Ready and BadAzs_Ready("Hammer of Wrath") then 
-        _Cast("Hammer of Wrath")
-        return
-    end
+    if BadAzs_HasSeal() and BadAzs_Ready("Judgement") then BadAzs_Cast("Judgement"); return end
+    if not BadAzs_HasSeal() then BadAzs_Cast(DesiredSeal); return end
 
-    -- 5. Crusader Strike (Turtle WoW MVP)
-    if BadAzs_Ready and BadAzs_Ready("Crusader Strike") then
-        _Cast("Crusader Strike")
-        return
-    end
-
-    -- 6. Exorcism (Undead/Demon)
-    if (targetType == "Undead" or targetType == "Demon") and BadAzs_Ready and BadAzs_Ready("Exorcism") then
-        _Cast("Exorcism")
-        return
-    end
-
-    -- 7. Judgement (Explode o Selo)
-    if BadAzs_HasSeal() and BadAzs_Ready and BadAzs_Ready("Judgement") then
-        _Cast("Judgement")
-        return
-    end
-
-    -- 8. Re-Selo Dinâmico (Se estiver sem selo)
-    if not BadAzs_HasSeal() then
-        if mana < 20 and BadAzs_Ready and BadAzs_Ready(SealMana) then
-            _Cast(SealMana)
-        else
-            _Cast(BadAzsPalDB.Seal)
-        end
-        return
-    end
-
-    -- 9. Holy Strike Dump (Se sobrar mana)
-    if mana > 60 and BadAzs_Ready and BadAzs_Ready("Holy Strike") then
-        _Cast("Holy Strike")
-    end
+    -- 6. Holy Strike (Cache Protected)
+    if mana > 60 and BadAzs_Ready("Holy Strike") then BadAzs_Cast("Holy Strike") end
 end
 
 -- ============================================================
--- [ ROTAÇÃO PROT (TANK) ]
+-- [5. ROTAÇÃO PROTECTION (TANK)]
 -- ============================================================
 function BadAzsProt()
-    if not UnitExists("target") then 
-        if BadAzs_StartAttack then BadAzs_StartAttack() else AttackTarget() end
-        return 
-    end
+    if IsAltKeyDown() then BadAzs_SmartBuff(); return end
     
-    if BadAzs_StartAttack then BadAzs_StartAttack() else AttackTarget() end
+    BadAzs_Cast("Attack")
     UIErrorsFrame:Clear()
 
-    local mana = 0
-    if BadAzs_GetMana then mana = BadAzs_GetMana() end
+    if not BadAzs_GetMana then return end
+    local mana = BadAzs_GetMana()
 
-    -- 1. Righteous Fury (Essencial para Tank)
-    if BadAzs_HasBuff and not BadAzs_HasBuff("Spell_Holy_SealOfFury") then
-        _Cast("Righteous Fury")
-        return
+    -- 1. Righteous Fury
+    if not BadAzs_HasBuff("SealOfFury") then BadAzs_Cast("Righteous Fury"); return end
+
+    -- 2. Holy Shield
+    if BadAzs_Ready("Holy Shield") then BadAzs_Cast("Holy Shield"); return end
+
+    -- 3. Crusader Strike
+    if BadAzs_Ready("Crusader Strike") then BadAzs_Cast("Crusader Strike"); return end
+
+    -- 4. Consecration
+    if mana > 30 and BadAzs_Ready("Consecration") and CheckInteractDistance("target", 3) then
+        BadAzs_Cast("Consecration"); return
     end
 
-    -- 2. Holy Shield (Mitigação Primária)
-    if BadAzs_Ready and BadAzs_Ready("Holy Shield") then
-        _Cast("Holy Shield")
-        return
-    end
-
-    -- 3. Crusader Strike (Gera Threat + Mana no Turtle)
-    if BadAzs_Ready and BadAzs_Ready("Crusader Strike") then
-        _Cast("Crusader Strike")
-        return
-    end
-
-    -- 4. Consecration (AoE Threat - Cuidado com Mana)
-    if mana > 30 and BadAzs_Ready and BadAzs_Ready("Consecration") and CheckInteractDistance("target", 3) then
-        _Cast("Consecration")
-        return
-    end
-
-    -- 5. Judgement
-    if BadAzs_HasSeal() and BadAzs_Ready and BadAzs_Ready("Judgement") then
-        _Cast("Judgement")
-        return
-    end
-
-    -- 6. Recast do Selo (Fixo em Righteousness para Threat Constante)
-    if not BadAzs_HasSeal() then
-        if mana < 15 then _Cast(SealMana) else _Cast("Seal of Righteousness") end
-        return
-    end
+    -- 5. Seal Logic
+    if BadAzs_HasSeal() and BadAzs_Ready("Judgement") then BadAzs_Cast("Judgement"); return end
+    
+    local TankSeal = "Seal of Righteousness"
+    if mana < 15 then TankSeal = "Seal of Wisdom" end
+    if not BadAzs_HasSeal() then BadAzs_Cast(TankSeal); return end
 end
 
 -- ============================================================
--- [ UTILITÁRIOS & BUFFS (ALT KEY) ]
+-- [6. COMANDOS SLASH]
 -- ============================================================
-function BadAzsBuffs()
-    local target = "player"
-    if UnitExists("target") and UnitIsFriend("player", "target") then
-        target = "target"
+function BadAzs_CycleBlessing()
+    if not BadAzsPalDB then return end
+    local i = BadAzsPalDB.BlessIndex or 1
+    i = i + 1
+    if i > table.getn(BlessingList) then i = 1 end
+    
+    BadAzsPalDB.BlessIndex = i
+    BadAzsPalDB.Blessing = BlessingList[i]
+    
+    local msg = BlessingList[i]
+    if string.find(msg, "Might") then msg = "|cffFF0000" .. msg .. "|r"
+    elseif string.find(msg, "Wisdom") then msg = "|cff0000FF" .. msg .. "|r"
+    elseif string.find(msg, "Kings") then msg = "|cffFFFFFF" .. msg .. "|r"
+    elseif string.find(msg, "Salvation") then msg = "|cff00FF00" .. msg .. "|r"
     end
-    CastSpellByName(BadAzsPalDB.Blessing, OnSelf)
-    if SpellIsTargeting() then SpellTargetUnit(target) end
+    
+    UIErrorsFrame:AddMessage("Next Buff: " .. msg, 1.0, 1.0, 1.0, 1.0, UIERRORS_HOLD_TIME)
+    DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Buff Cycle: " .. msg)
 end
 
--- ============================================================
--- [ SLASH COMMANDS & CONFIGURAÇÃO ]
--- ============================================================
-
-function BadAzs_RetWrapper() 
-    if IsAltKeyDown() then BadAzsBuffs() else BadAzsRet() end 
-end
-
-function BadAzs_ProtWrapper() 
-    if IsAltKeyDown() then BadAzsBuffs() else BadAzsProt() end 
-end
-
--- Handler de Configuração (/badpal)
 SLASH_BADAZSPALCMD1 = "/badpal"
 SlashCmdList["BADAZSPALCMD"] = function(msg)
     msg = string.lower(msg)
     
-    -- [[ SELETOR DE SELOS (Comandos Curtos) ]]
-    if string.find(msg, "seal comm") then
-        BadAzsPalDB.Seal = "Seal of Command"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Selo: |cffFF0000Seal of Command|r")
-        
-    elseif string.find(msg, "seal right") then
-        BadAzsPalDB.Seal = "Seal of Righteousness"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Selo: |cff00FFFFSeal of Righteousness|r")
-        
-    elseif string.find(msg, "seal crus") then
-        BadAzsPalDB.Seal = "Seal of the Crusader"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Selo: |cffFFFF00Seal of the Crusader|r")
+    if string.find(msg, "cycle") then BadAzs_CycleBlessing(); return end
+
+    -- OPENER
+    if string.find(msg, "opener crus") then BadAzsPalDB.Opener = "Seal of the Crusader"
+    elseif string.find(msg, "opener wis") then BadAzsPalDB.Opener = "Seal of Wisdom"
+    elseif string.find(msg, "opener light") then BadAzsPalDB.Opener = "Seal of Light"
+    elseif string.find(msg, "opener none") then BadAzsPalDB.Opener = "None"
     
-    -- [[ SELETOR DE BLESSINGS ]]
-    elseif string.find(msg, "bless might") then
-        BadAzsPalDB.Blessing = "Blessing of Might"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Blessing (ALT): |cffFF0000Might|r")
-
-    elseif string.find(msg, "bless kings") then
-        BadAzsPalDB.Blessing = "Blessing of Kings"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Blessing (ALT): |cffFFFFFFKings|r")
-
-    elseif string.find(msg, "bless wisdom") then
-        BadAzsPalDB.Blessing = "Blessing of Wisdom"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Blessing (ALT): |cff0000FFWisdom|r")
-
-    elseif string.find(msg, "bless sanc") then
-        BadAzsPalDB.Blessing = "Blessing of Sanctuary"
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Blessing (ALT): |cffCCCCCCSanctuary|r")
-        
+    -- MAIN
+    elseif string.find(msg, "main comm") or string.find(msg, "main soc") then BadAzsPalDB.Main = "Seal of Command"
+    elseif string.find(msg, "main right") or string.find(msg, "main sor") then BadAzsPalDB.Main = "Seal of Righteousness"
+    elseif string.find(msg, "main wis") then BadAzsPalDB.Main = "Seal of Wisdom"
+    
     else
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs Paladin v1.5]|r")
-        DEFAULT_CHAT_FRAME:AddMessage("Selo Atual: " .. BadAzsPalDB.Seal)
-        DEFAULT_CHAT_FRAME:AddMessage("Blessing (ALT): " .. BadAzsPalDB.Blessing)
-        DEFAULT_CHAT_FRAME:AddMessage("--- Comandos ---")
-        DEFAULT_CHAT_FRAME:AddMessage("/badpal seal [comm | right | crus]")
-        DEFAULT_CHAT_FRAME:AddMessage("/badpal bless [might | kings | wisdom | sanc]")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs Paladin v3.2]|r")
+        DEFAULT_CHAT_FRAME:AddMessage("/badpal cycle")
+        DEFAULT_CHAT_FRAME:AddMessage("/badpal opener [crus | wis | light | none]")
+        DEFAULT_CHAT_FRAME:AddMessage("/badpal main [comm | right | wis]")
+        DEFAULT_CHAT_FRAME:AddMessage("Current: " .. (BadAzsPalDB.Opener or "?") .. " -> " .. (BadAzsPalDB.Main or "?"))
+        return
     end
+    DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Updated.")
 end
 
-SLASH_BADRET1 = "/bret"
-SlashCmdList["BADRET"] = BadAzs_RetWrapper
-
-SLASH_BADPROT1 = "/bprot"
-SlashCmdList["BADPROT"] = BadAzs_ProtWrapper
+SLASH_BADRET1 = "/bret"; SlashCmdList["BADRET"] = BadAzsRet
+SLASH_BADPROT1 = "/bprot"; SlashCmdList["BADPROT"] = BadAzsProt
