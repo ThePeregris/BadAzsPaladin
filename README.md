@@ -8,17 +8,17 @@
 
 ## 1. TECHNICAL MANIFESTO | BadAzsPaladin
 
-**Version:** v3.2 (Dual Seal & Smart Buff)
-**Target:** Turtle WoW (Client 1.12.x – LUA 5.0)
-**Architecture:** Conflict Free / Slot Cache / Dual Seal Engine
-**Requires:** BadAzsCore (v1.8+)
-**Author:** **ThePeregris & Gemini**
+**Version:** v3.2 (Dual Seal & Smart Buff)  
+**Target:** Turtle WoW (Client 1.12.x – LUA 5.0)  
+**Architecture:** Conflict Free / Slot Cache / Dual Seal Engine  
+**Requires:** BadAzsCore (v1.8+)  
+**Author:** **ThePeregris**
 
-**BadAzsPaladin** is a **Decision Support System (DSS)** designed for the Turtle WoW meta.
-Unlike version 1.x, the **v3.2** engine introduces a **Dual Seal System** (Opener vs. Main) and a **Smart Buff System** that handles mouseover casting and Greater Blessings automatically.
+**BadAzsPaladin** is a **Decision Support System (DSS)** designed for the Turtle WoW meta.  
+Unlike version 1.x, the **v3.2** engine introduces a **Dual Seal System** (Opener vs. Main) and a **Smart Buff System** that handles mouseover casting and Greater Blessings automatically.  
 
-✔️ **Dual Seal Logic (Opener/Main)**
-✔️ **Smart Buffs (Mouseover & Greater Blessings)**
+✔️ **Dual Seal Logic (Opener/Main)**  
+✔️ **Smart Buffs (Mouseover & Greater Blessings)**  
 ✔️ **Holy Strike Anti-Toggle Protection (Slot Cache)**
 
 ---
