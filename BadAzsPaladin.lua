@@ -1,10 +1,10 @@
 -- [[ [|cffF58CBA|r]adAzs |cffF58CBAPaladin|r ]]
 -- Author:  ThePeregris
--- Version: 3.2 (Conflict Free / Slot Cache)
+-- Version: 3.2
 -- Target:  Turtle WoW (1.12 / LUA 5.0)
 -- Requer:  BadAzsCore.lua (v1.8+)
 
-local BadAzsPalVersion = "|cffF58CBABadAzsPaladin v3.2|r"
+local BadAzsPalVersion = "|cffF58CBABadAzsPaladin v3.3|r"
 local _Cast = CastSpellByName
 
 -- ============================================================
@@ -32,10 +32,10 @@ local GreaterBlessings = {
     ["Blessing of Salvation"] = "Greater Blessing of Salvation"
 }
 
--- Cache para evitar Toggle de Holy Strike (Igual ao HS do Warrior)
+-- Cache para evitar Toggle de Holy Strike
 local BadAzs_SlotCache = { ["Holy Strike"] = nil }
 
--- Scanner de Tooltip Isolado (Para ler nomes das magias nas barras)
+-- Scanner de Tooltip Isolado
 CreateFrame("GameTooltip", "BadAzsPal_Scanner", nil, "GameTooltipTemplate")
 BadAzsPal_Scanner:SetOwner(WorldFrame, "ANCHOR_NONE")
 
@@ -44,10 +44,9 @@ BadAzsPal_Scanner:SetOwner(WorldFrame, "ANCHOR_NONE")
 -- ============================================================
 local loadFrame = CreateFrame("Frame")
 loadFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-loadFrame:RegisterEvent("ACTIONBAR_SLOT_CHANGED") -- Atualiza se mover magia
+loadFrame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
 loadFrame:SetScript("OnEvent", function()
     
-    -- Inicialização Única
     if event == "PLAYER_ENTERING_WORLD" then
         if not BadAzsPalDB then BadAzsPalDB = {} end
         if not BadAzsPalDB.Opener then BadAzsPalDB.Opener = "Seal of the Crusader" end
@@ -55,7 +54,7 @@ loadFrame:SetScript("OnEvent", function()
         if not BadAzsPalDB.Blessing then BadAzsPalDB.Blessing = "Blessing of Might" end
         if not BadAzsPalDB.BlessIndex then BadAzsPalDB.BlessIndex = 1 end
 
-        -- Filtro de Spam do Chat (Mesma lógica do Warrior)
+        -- Filtro de Spam do Chat
         local block = {
             "fail", "not ready", "enough rage", "enough mana", "Another action", "range", 
             "No target", "recovered", "Ability", "Must be in", "nothing to attack", 
@@ -80,18 +79,17 @@ loadFrame:SetScript("OnEvent", function()
     end
 
     -- Atualiza Cache de Slots (Procura onde está o Holy Strike)
-    -- Isso é vital para o Holy Strike não ficar ligando e desligando
     if event == "PLAYER_ENTERING_WORLD" or event == "ACTIONBAR_SLOT_CHANGED" then
         BadAzs_SlotCache["Holy Strike"] = nil
         for i = 1, 120 do
             if HasAction(i) then
                 local texture = GetActionTexture(i)
-                if texture and string.find(texture, "Spell_Holy_Imbue") then -- Textura do Holy Strike
+                if texture and string.find(texture, "Spell_Holy_Imbue") then
                     BadAzsPal_Scanner:SetAction(i)
                     local name = BadAzsPal_ScannerTextLeft1:GetText()
                     if name == "Holy Strike" then 
                         BadAzs_SlotCache["Holy Strike"] = i 
-                        break -- Achou, pode parar
+                        break 
                     end
                 end
             end
@@ -103,7 +101,6 @@ end)
 -- [2. HELPERS DE CONFLITO E SEGURANÇA]
 -- ============================================================
 
--- Verifica se "Next Melee" já está armado (Evita Toggle)
 local function BadAzs_IsQueued(spellName)
     local slot = BadAzs_SlotCache[spellName]
     if slot and IsCurrentAction(slot) then
@@ -112,20 +109,17 @@ local function BadAzs_IsQueued(spellName)
     return false
 end
 
--- Wrapper de Cast Seguro (Centralizado)
 local function BadAzs_Cast(t) 
     if t == "Attack" then 
         if BadAzs_StartAttack then BadAzs_StartAttack() else AttackTarget() end
         return 
     end
-    -- Proteção contra Toggle do Holy Strike
     if t == "Holy Strike" and BadAzs_IsQueued("Holy Strike") then
-        return -- Já está ativo/brilhando, não aperta de novo
+        return 
     end
     _Cast(t) 
 end
 
--- Helpers do Paladino (Dependentes do Core 1.8)
 local function BadAzs_HasSeal()
     if not BadAzs_HasBuff then return false end
     return BadAzs_HasBuff("InnerRage") or 
@@ -183,7 +177,6 @@ function BadAzsRet()
     BadAzs_Cast("Attack")
     UIErrorsFrame:Clear()
     
-    -- Proteção contra Core ausente
     if not BadAzs_GetMana or not BadAzs_Ready then 
         DEFAULT_CHAT_FRAME:AddMessage("BadAzsCore not loaded!")
         return 
@@ -193,8 +186,9 @@ function BadAzsRet()
     local thp = BadAzs_GetTargetHP()   
     local targetType = UnitCreatureType("target")
     
-    -- 1. Aura
-    if not BadAzs_HasBuff("Sanctity") and not UnitIsMounted("player") then BadAzs_Cast("Sanctity Aura") end
+    -- 1. Aura (Removido UnitIsMounted para corrigir erro no 1.12)
+    -- Se você estiver montado e apertar o macro, ele vai castar a aura e te desmontar.
+    if not BadAzs_HasBuff("Sanctity") then BadAzs_Cast("Sanctity Aura") end
 
     -- 2. Execute
     if thp <= 20 and BadAzs_Ready("Hammer of Wrath") then BadAzs_Cast("Hammer of Wrath"); return end
@@ -296,7 +290,7 @@ SlashCmdList["BADAZSPALCMD"] = function(msg)
     elseif string.find(msg, "main wis") then BadAzsPalDB.Main = "Seal of Wisdom"
     
     else
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs Paladin v3.2]|r")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs Paladin v3.3]|r")
         DEFAULT_CHAT_FRAME:AddMessage("/badpal cycle")
         DEFAULT_CHAT_FRAME:AddMessage("/badpal opener [crus | wis | light | none]")
         DEFAULT_CHAT_FRAME:AddMessage("/badpal main [comm | right | wis]")
