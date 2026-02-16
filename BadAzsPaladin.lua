@@ -1,10 +1,10 @@
 -- [[ [|cffF58CBA|r]adAzs |cffF58CBAPaladin|r ]]
--- Author:  ThePeregris
--- Version: 3.2
+-- Author:  ThePeregris & Gemini
+-- Version: 3.4 (Fix: Crusader Spam / Texture Update)
 -- Target:  Turtle WoW (1.12 / LUA 5.0)
 -- Requer:  BadAzsCore.lua (v1.8+)
 
-local BadAzsPalVersion = "|cffF58CBABadAzsPaladin v3.3|r"
+local BadAzsPalVersion = "|cffF58CBABadAzsPaladin v3.4|r"
 local _Cast = CastSpellByName
 
 -- ============================================================
@@ -12,10 +12,11 @@ local _Cast = CastSpellByName
 -- ============================================================
 
 -- Texturas para identificar Debuffs (Opener)
+-- Atualizado para bater com os nomes exatos do Turtle WoW
 local DebuffTextures = {
-    ["Seal of the Crusader"] = "HolySmite",
-    ["Seal of Wisdom"]       = "RighteousnessAura",
-    ["Seal of Light"]        = "HealingAura"
+    ["Seal of the Crusader"] = "Spell_Holy_HolySmite",        -- Judgement of the Crusader
+    ["Seal of Wisdom"]       = "Spell_Holy_RighteousnessAura", -- Judgement of Wisdom
+    ["Seal of Light"]        = "Spell_Holy_HealingAura"        -- Judgement of Light
 }
 
 local BlessingList = {
@@ -186,8 +187,7 @@ function BadAzsRet()
     local thp = BadAzs_GetTargetHP()   
     local targetType = UnitCreatureType("target")
     
-    -- 1. Aura (Removido UnitIsMounted para corrigir erro no 1.12)
-    -- Se você estiver montado e apertar o macro, ele vai castar a aura e te desmontar.
+    -- 1. Aura
     if not BadAzs_HasBuff("Sanctity") then BadAzs_Cast("Sanctity Aura") end
 
     -- 2. Execute
@@ -290,7 +290,7 @@ SlashCmdList["BADAZSPALCMD"] = function(msg)
     elseif string.find(msg, "main wis") then BadAzsPalDB.Main = "Seal of Wisdom"
     
     else
-        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs Paladin v3.3]|r")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs Paladin v3.4]|r")
         DEFAULT_CHAT_FRAME:AddMessage("/badpal cycle")
         DEFAULT_CHAT_FRAME:AddMessage("/badpal opener [crus | wis | light | none]")
         DEFAULT_CHAT_FRAME:AddMessage("/badpal main [comm | right | wis]")
