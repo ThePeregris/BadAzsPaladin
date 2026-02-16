@@ -1,4 +1,4 @@
-# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v3.2)
+# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v3.4)
 
 **Battle Analysis Driven Assistant Zmart System**
 *Turtle WoW Edition – Core Integration*
@@ -8,14 +8,14 @@
 
 ## 1. TECHNICAL MANIFESTO | BadAzsPaladin
 
-**Version:** v3.2 (Dual Seal & Smart Buff)  
+**Version:** v3.4 (Dual Seal & Smart Buff)  
 **Target:** Turtle WoW (Client 1.12.x – LUA 5.0)  
 **Architecture:** Conflict Free / Slot Cache / Dual Seal Engine  
 **Requires:** BadAzsCore (v1.8+)  
 **Author:** **ThePeregris**
 
 **BadAzsPaladin** is a **Decision Support System (DSS)** designed for the Turtle WoW meta.  
-Unlike version 1.x, the **v3.2** engine introduces a **Dual Seal System** (Opener vs. Main) and a **Smart Buff System** that handles mouseover casting and Greater Blessings automatically.  
+Unlike version 1.x, the **v3.4** engine introduces a **Dual Seal System** (Opener vs. Main) and a **Smart Buff System** that handles mouseover casting and Greater Blessings automatically.  
 
 ✔️ **Dual Seal Logic (Opener/Main)**  
 ✔️ **Smart Buffs (Mouseover & Greater Blessings)**  
@@ -44,7 +44,7 @@ The script divides combat into two phases:
 
 ---
 
-## 3. CONFIGURATION (New in v3.2)
+## 3. CONFIGURATION (New in v3.4)
 
 ### Setting the Opener (Debuff)
 
@@ -139,20 +139,20 @@ BadAzsPaladin.lua
 
 # PT-BR / PORTUGUÊS
 
-# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v3.2)
+# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v3.4)
 
 **Battle Analysis Driven Assistant Zmart System**
 *Turtle WoW Edition – Integração Core*
 
 ## 1. MANIFESTO TÉCNICO
 
-**Versão:** v3.2 (Selo Duplo & Smart Buff)
+**Versão:** v3.4 (Selo Duplo & Smart Buff)
 **Alvo:** Turtle WoW (Client 1.12.x – LUA 5.0)
 **Arquitetura:** Livre de Conflitos / Cache de Slot / Motor de Selo Duplo
 **Requer:** BadAzsCore (v1.8+)
 **Autor:** **ThePeregris & Gemini**
 
-O **BadAzsPaladin v3.2** é um salto evolutivo. Diferente da versão 1.x, este motor introduz o **Sistema de Selo Duplo** (Abertura vs Principal) e um **Sistema de Smart Buff** que gerencia mouseover e Greater Blessings automaticamente.
+O **BadAzsPaladin v3.4** é um salto evolutivo. Diferente da versão 1.x, este motor introduz o **Sistema de Selo Duplo** (Abertura vs Principal) e um **Sistema de Smart Buff** que gerencia mouseover e Greater Blessings automaticamente.
 
 ✔️ **Lógica de Selo Duplo (Opener/Main)**
 ✔️ **Smart Buffs (Mouseover & Greater Blessings)**
@@ -177,7 +177,7 @@ O combate é dividido em duas fases:
 
 ---
 
-## 3. CONFIGURAÇÃO (Novo na v3.2)
+## 3. CONFIGURAÇÃO (Novo na v3.4)
 
 ### Configurar Abertura (Opener)
 
