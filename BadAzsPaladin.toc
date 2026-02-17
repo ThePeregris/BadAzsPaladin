@@ -1,8 +1,9 @@
 ## Interface: 11200
-## Title: [|cff355E3BB|r]adAzs |cff32CD32Paladin|r
+## Title: [|cffF58CBA|r]adAzs |cffF58CBAPaladin|r
 ## Notes: Battle Analysis Driven Assistant Zmart System for Turtle WoW.
 ## Author: ThePeregris
-## Version: 3.4
+## Version: 3.7
+## Dependencies: BadAzsCore
 ## SavedVariables: BadAzsPalDB
 ## OptionalDeps: ItemRack, SP_SwingTimer, UnitXP_SP3_Addon
 
