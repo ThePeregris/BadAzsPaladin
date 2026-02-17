@@ -1,4 +1,4 @@
--- [[ [|cffF58CBA|r]adAzs |cffF58CBAPaladin|r ]]
+-- [[ [|cff355E3BB|r]adAzs |cff32CD32Paladin|r ]]
 -- Author:  ThePeregris & Gemini
 -- Version: 3.7 (All Seals Fix)
 -- Target:  Turtle WoW (1.12 / LUA 5.0)
