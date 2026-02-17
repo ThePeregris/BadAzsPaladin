@@ -1,11 +1,10 @@
 ## Interface: 11200
 ## Title: [|cffF58CBA|r]adAzs |cffF58CBAPaladin|r
-## Notes: Battle Analysis Driven Assistant Zmart System for Turtle WoW.
+## Notes: BadAzs - Paladin Module (Integrated v3.7 - All Seals Fix).
 ## Author: ThePeregris
 ## Version: 3.7
 ## Dependencies: BadAzsCore
 ## SavedVariables: BadAzsPalDB
 ## OptionalDeps: ItemRack, SP_SwingTimer, UnitXP_SP3_Addon
 
-BadAzsCore.lua
 BadAzsPaladin.lua
