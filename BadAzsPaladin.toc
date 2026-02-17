@@ -3,8 +3,8 @@
 ## Notes: BadAzs - Paladin Module
 ## Author: ThePeregris
 ## Version: 3.9
-## Dependencies: BadAzsCore
 ## SavedVariables: BadAzsPalDB
+## Dependencies: BadAzsCore
 ## OptionalDeps: ItemRack
 
 BadAzsPaladin.lua
