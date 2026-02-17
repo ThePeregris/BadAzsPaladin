@@ -1,5 +1,5 @@
 ## Interface: 11200
-## Title: [|cffF58CBA|r]adAzs |cffF58CBAPaladin|r
+## Title: [|cff355E3BB|r]adAzs |cff32CD32Paladin|r
 ## Notes: BadAzs - Paladin Module (Integrated v3.7 - All Seals Fix).
 ## Author: ThePeregris
 ## Version: 3.7
@@ -8,3 +8,4 @@
 ## OptionalDeps: ItemRack, SP_SwingTimer, UnitXP_SP3_Addon
 
 BadAzsPaladin.lua
+
