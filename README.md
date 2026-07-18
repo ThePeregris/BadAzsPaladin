@@ -225,14 +225,14 @@ Segure **ALT** enquanto aperta seu macro de rotação (`/bret` ou `/bprot`).
 
 ## 5. MÓDULOS DE COMBATE
 
-### 🛡️ `/bprot` — PROTECTION (TANK)
+### 🛡️ `/bapprot` — PROTECTION (TANK)
 
 * **Righteous Fury:** Proteção de auto-cast.
 * **Holy Shield:** Usado sempre que disponível.
 * **Consecration:** Uso inteligente (Mana > 30% + Checagem de Alcance).
 * **Threat:** Prioriza Crusader Strike > Judgement > Seal of Righteousness.
 
-### ⚔️ `/bret` — RETRIBUTION (DPS)
+### ⚔️ `/bapret` — RETRIBUTION (DPS)
 
 * **Hammer of Wrath:** Prioridade #1 (< 20% HP).
 * **Crusader Strike:** Prioridade #2 (Mana/Dano).
@@ -257,8 +257,8 @@ BadAzsPaladin.lua
 
 | Comando | Ação |
 | --- | --- |
-| `/bret` | Rotação Retribution |
-| `/bprot` | Rotação Protection |
+| `/bapret` | Rotação Retribution |
+| `/bapprot` | Rotação Protection |
 | `/badpal cycle` | Selecionar Próxima Bênção |
 | `/badpal opener crus` | Definir Abertura: Crusader |
 | `/badpal main soc` | Definir Principal: Command |
