@@ -1,271 +1,82 @@
-# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v3.4)
+# [B]adAzs Paladin 
 
-**Battle Analysis Driven Assistant Zmart System**
-*Turtle WoW Edition – Core Integration*
+**Battle Analysis Driven Assistant Zmart System** <br>
+*Vanilla / Classic WoW Edition – Core Integration*
 <a href="https://www.paypal.com/donate/?hosted_button_id=VLAFP6ZT8ATGU">
   <img src="https://github.com/ThePeregris/MainAssets/blob/main/Donate_PayPal.png" alt="Tips Appreciated!" align="right" width="120" height="75">
 </a>
+<br><br><br>
+<hr>
 
-## 1. TECHNICAL MANIFESTO | BadAzsPaladin
+Addon de rotação para Paladin, feito para **Turtle WoW (cliente 1.12 / Lua 5.0)**.
+Cobre **Retribution** e **Protection** com sistema de selos configurável, smart buff no mouseover e integração com o [BadAzs Core](../BadAzsCore).
 
-**Version:** v3.4 (Dual Seal & Smart Buff)  
-**Target:** Turtle WoW (Client 1.12.x – LUA 5.0)  
-**Architecture:** Conflict Free / Slot Cache / Dual Seal Engine  
-**Requires:** BadAzsCore (v1.8+)  
-**Author:** **ThePeregris**
+## Requisitos
 
-**BadAzsPaladin** is a **Decision Support System (DSS)** designed for the Turtle WoW meta.  
-Unlike version 1.x, the **v3.4** engine introduces a **Dual Seal System** (Opener vs. Main) and a **Smart Buff System** that handles mouseover casting and Greater Blessings automatically.  
+- **BadAzs Core** (obrigatório) — fornece o sistema de poções/bandagens (`Sustain`) e o roteador de painéis (`/badazs`).
+- **ItemRack** (opcional) — não usado diretamente pelo Paladin hoje, mas fica disponível se o Core/outros addons precisarem.
 
-✔️ **Dual Seal Logic (Opener/Main)**  
-✔️ **Smart Buffs (Mouseover & Greater Blessings)**  
-✔️ **Holy Strike Anti-Toggle Protection (Slot Cache)**
+## Instalação
 
----
-
-## 2. CORE FEATURES
-
-### ⚔️ Core Attack API (Shared)
-
-Utilizes `BadAzs_StartAttack()` from BadAzsCore v1.8 to ensure safe Auto-Attack engagement without stopping swings when switching targets.
-
-### 🛡️ Holy Strike Protection (Slot Cache)
-
-The script scans your action bars to find where **Holy Strike** is located. It uses `IsCurrentAction()` to check if the spell is already queued (glowing).
-
-* **Result:** It never "un-queues" your Holy Strike by accidentally pressing the button twice.
-
-### 🔄 Dual Seal Engine
-
-The script divides combat into two phases:
-
-1. **Opener:** Applies a specific Seal to debuff the enemy (e.g., *Seal of the Crusader*).
-2. **Main:** Once the debuff is detected, it switches to your damage/tanking seal (e.g., *Seal of Command*).
-
----
-
-## 3. CONFIGURATION (New in v3.4)
-
-### Setting the Opener (Debuff)
-
-Which seal to use *first* to apply a debuff?
-
-* `/badpal opener crus` → **Seal of the Crusader** (Standard DPS).
-* `/badpal opener wis` → **Seal of Wisdom** (Mana Restore).
-* `/badpal opener light` → **Seal of Light** (Healing).
-* `/badpal opener none` → **None** (Skip straight to damage).
-
-### Setting the Main Seal (Damage/Tank)
-
-Which seal to use *after* the debuff is applied?
-
-* `/badpal main comm` → **Seal of Command** (2H Weapons).
-* `/badpal main right` → **Seal of Righteousness** (Tank / 1H).
-* `/badpal main wis` → **Seal of Wisdom** (Mana Battery Mode).
-
-### Setting the Blessing (Cycle)
-
-Select which blessing is used by the **ALT** key.
-
-* `/badpal cycle` → Cycles through available blessings (Might > Wisdom > Kings > etc).
-
----
-
-## 4. TACTICAL OVERRIDES (Smart Buff System)
-
-### ⌨️ ALT — Smart Buffing
-
-Hold **ALT** while pressing your rotation macro (`/bret` or `/bprot`).
-
-**Priority Logic:**
-
-1. **Mouseover (Friend):** Buffs the unit under your mouse pointer (Party/Raid Frame or 3D model).
-2. **Target (Friend):** Buffs your current target if friendly.
-3. **Self:** If no mouseover or friendly target, buffs **Player**.
-
-**Greater Blessings:**
-
-* Hold **CTRL + ALT**: Casts the **Greater Blessing** (15 min) version of the selected spell.
-* *Requires "Symbol of Kings".*
-
----
-
-## 5. COMBAT MODULES
-
-### 🛡️ `/bprot` — PROTECTION (TANK)
-
-* **Righteous Fury:** Auto-cast protection.
-* **Holy Shield:** Spammed on cooldown.
-* **Consecration:** Smart usage (Mana > 30% + Range check).
-* **Threat:** Prioritizes Crusader Strike > Judgement > Seal of Righteousness.
-
-### ⚔️ `/bret` — RETRIBUTION (DPS)
-
-* **Hammer of Wrath:** Priority #1 (< 20% HP).
-* **Crusader Strike:** Priority #2 (Mana/Damage).
-* **Exorcism:** Auto-cast on Undead/Demon.
-* **Seal Logic:** Checks for Opener Debuff -> Switches to Main Seal.
-* **Holy Strike:** Dumps excess mana (> 60%) without clipping attacks.
-
----
-
-## 6. INSTALLATION
-
-**Order in `.toc` file is critical:**
-
-```ini
-BadAzsCore.lua
-BadAzsPaladin.lua
+Copie a pasta inteira para `Interface/AddOns/`, mantendo o nome:
 
 ```
-
----
-
-## 7. QUICK COMMANDS
-
-| Command | Action |
-| --- | --- |
-| `/bret` | Retribution Rotation |
-| `/bprot` | Protection/Tank Rotation |
-| `/badpal cycle` | Select Next Blessing |
-| `/badpal opener crus` | Set Opener: Crusader |
-| `/badpal main soc` | Set Main: Command |
-| `ALT + Macro` | Smart Buff (Normal) |
-| `CTRL + ALT + Macro` | Smart Buff (Greater) |
-
----
-
----
-
-# PT-BR / PORTUGUÊS
-
-# [B]adAzs Paladin – MODULAR TACTICAL SUITE (v3.4)
-
-**Battle Analysis Driven Assistant Zmart System**
-*Turtle WoW Edition – Integração Core*
-
-## 1. MANIFESTO TÉCNICO
-
-**Versão:** v3.4 (Selo Duplo & Smart Buff)
-**Alvo:** Turtle WoW (Client 1.12.x – LUA 5.0)
-**Arquitetura:** Livre de Conflitos / Cache de Slot / Motor de Selo Duplo
-**Requer:** BadAzsCore (v1.8+)
-**Autor:** **ThePeregris & Gemini**
-
-O **BadAzsPaladin v3.4** é um salto evolutivo. Diferente da versão 1.x, este motor introduz o **Sistema de Selo Duplo** (Abertura vs Principal) e um **Sistema de Smart Buff** que gerencia mouseover e Greater Blessings automaticamente.
-
-✔️ **Lógica de Selo Duplo (Opener/Main)**
-✔️ **Smart Buffs (Mouseover & Greater Blessings)**
-✔️ **Proteção de Holy Strike (Slot Cache)**
-
----
-
-## 2. FUNCIONALIDADES PRINCIPAIS
-
-### 🛡️ Proteção do Holy Strike (Slot Cache)
-
-O script escaneia suas barras de ação para encontrar onde o **Holy Strike** está. Ele usa `IsCurrentAction()` para saber se a magia já está "armada" (brilhando).
-
-* **Resultado:** Ele nunca cancela seu Holy Strike por apertar o botão duas vezes acidentalmente.
-
-### 🔄 Motor de Selo Duplo
-
-O combate é dividido em duas fases:
-
-1. **Opener (Abertura):** Aplica um selo para colocar Debuff no inimigo (ex: *Seal of the Crusader*).
-2. **Main (Principal):** Assim que o debuff é detectado, troca para o selo de dano/tank (ex: *Seal of Command*).
-
----
-
-## 3. CONFIGURAÇÃO (Novo na v3.4)
-
-### Configurar Abertura (Opener)
-
-Qual selo usar *primeiro*?
-
-* `/badpal opener crus` → **Seal of the Crusader** (Padrão DPS).
-* `/badpal opener wis` → **Seal of Wisdom** (Restaurar Mana).
-* `/badpal opener light` → **Seal of Light** (Cura).
-* `/badpal opener none` → **Nenhum** (Vai direto para o dano).
-
-### Configurar Principal (Main)
-
-Qual selo usar *depois* do debuff?
-
-* `/badpal main comm` → **Seal of Command** (Armas 2H).
-* `/badpal main right` → **Seal of Righteousness** (Tank / 1H).
-* `/badpal main wis` → **Seal of Wisdom** (Modo Bateria de Mana).
-
-### Configurar Bênção (Cycle)
-
-Seleciona qual bênção será usada pela tecla **ALT**.
-
-* `/badpal cycle` → Alterna entre as bênçãos disponíveis (Might > Wisdom > Kings > etc).
-
----
-
-## 4. SMART BUFF SYSTEM (Overrides)
-
-### ⌨️ ALT — Buff Inteligente
-
-Segure **ALT** enquanto aperta seu macro de rotação (`/bret` ou `/bprot`).
-
-**Lógica de Prioridade:**
-
-1. **Mouseover (Amigo):** Buffa quem estiver embaixo do seu mouse (Party Frame ou Boneco 3D).
-2. **Target (Amigo):** Buffa seu alvo atual se for amigo.
-3. **Self:** Se não tiver mouseover nem alvo amigo, buffa o **Jogador**.
-
-**Greater Blessings (Raide):**
-
-* Segure **CTRL + ALT**: Lança a **Greater Blessing** (15 min) da bênção selecionada.
-* *Requer reagente "Symbol of Kings".*
-
----
-
-## 5. MÓDULOS DE COMBATE
-
-### 🛡️ `/bapprot` — PROTECTION (TANK)
-
-* **Righteous Fury:** Proteção de auto-cast.
-* **Holy Shield:** Usado sempre que disponível.
-* **Consecration:** Uso inteligente (Mana > 30% + Checagem de Alcance).
-* **Threat:** Prioriza Crusader Strike > Judgement > Seal of Righteousness.
-
-### ⚔️ `/bapret` — RETRIBUTION (DPS)
-
-* **Hammer of Wrath:** Prioridade #1 (< 20% HP).
-* **Crusader Strike:** Prioridade #2 (Mana/Dano).
-* **Exorcism:** Auto-cast em Undead/Demon.
-* **Holy Strike:** Gasta excesso de mana (> 60%) sem cortar ataques.
-
----
-
-## 6. INSTALAÇÃO
-
-**A ordem no arquivo `.toc` é crítica:**
-
-```ini
-BadAzsCore.lua
-BadAzsPaladin.lua
-
+AddOns/
+  BadAzsPaladin/
+    BadAzsPaladin.toc
+    BadAzsPaladin.lua
 ```
 
----
+Confirme na tela de personagem (botão **AddOns**) que `BadAzs Paladin` está habilitado — e que **BadAzs Core** também está.
 
-## 7. COMANDOS RÁPIDOS
+## Macros
 
-| Comando | Ação |
-| --- | --- |
+| Comando | O que faz |
+|---|---|
 | `/bapret` | Rotação Retribution |
 | `/bapprot` | Rotação Protection |
-| `/badpal cycle` | Selecionar Próxima Bênção |
-| `/badpal opener crus` | Definir Abertura: Crusader |
-| `/badpal main soc` | Definir Principal: Command |
-| `ALT + Macro` | Smart Buff (Normal) |
-| `CTRL + ALT + Macro` | Smart Buff (Greater) |
+| Segurar **ALT** + `/bapret` ou `/bapprot` | Lança a Bênção configurada em quem estiver no mouseover (Smart Buff) |
+| Segurar **CTRL+ALT** + o mesmo macro | Lança a versão **Maior** (Greater) da Bênção, se disponível |
+| `/badazs pally` | Abre o painel de configuração |
 
----
+Cada macro já lida com abertura de selo, troca pro selo principal e uso de poções/bandagens (herdado do Core) sozinho.
 
-**BadAzsPaladin v3.2 (Turtle Edition)**
-*Powered by Core Attack API*
+## Sistema de Selos
+
+- **Selo de Abertura (Opener)** — lançado no alvo assim que ele não tem o debuff de Julgamento correspondente ainda, pra garantir que o Judgement bata antes do selo principal assumir.
+- **Selo Principal (Main)** — mantido ativo pro dano sustentado depois que o debuff de abertura já está no alvo.
+
+Os dois são escolhidos clicando no botão do painel, que cicla pelas opções:
+- Opener: `Seal of the Crusader` → `Seal of Wisdom` → `Seal of Light` → `None`
+- Main: `Seal of Command` → `Seal of Righteousness` → `Seal of Wisdom`
+
+## Painel de configuração (`/badazs pally`)
+
+Formato de "livro": página esquerda com os controles, página direita com a explicação de cada um.
+
+- **Selo de Abertura** e **Selo Principal** — botões de ciclo (clique pra trocar).
+- **Bênção no ALT (Smart Buff)** — botão de ciclo que define qual Bênção é lançada ao segurar ALT + mouseover. Ciclo corrigido nessa versão (`/bapconfig cycle` antigo nunca funcionava — a função não existia).
+- **Botão de idioma** (`EN`/`PT`) no canto superior esquerdo — troca o idioma de toda a interface na hora.
+
+## SavedVariables
+
+- `BadAzsPalDB.Opener` — string, selo de abertura
+- `BadAzsPalDB.Main` — string, selo principal
+- `BadAzsPalDB.Blessing` — string, bênção atual do ALT
+- `BadAzsPalDB.BlessIndex` — índice interno do ciclo de bênção
+- `BadAzsPalDB.Locale` — `"EN"` ou `"PT"`
+
+## Arquitetura interna
+
+Desde a v4.0, o Paladin é **self-sufficient**: não depende mais do Core para checagens de combate (`Cast`, `Ready`, `HasBuff`, `TargetHasDebuff`, `GetTargetHP`, `GetMana`, scanner de tooltip, tracking de ataque). O Core só é usado para:
+
+- `BadAzs_Sustain()` — poções de vida/mana, healthstone, bandagem (chamado automaticamente no início de cada rotação).
+- `BadAzs_ManualMouseover()` — utilitário genérico de castar em quem está no mouseover sem perder o target atual (usado pelo Smart Buff).
+- Roteador `/badazs` — cada addon de classe se registra em `BadAzs_PanelRegistry`, evitando conflito entre addons que usam o mesmo prefixo de comando.
+
+## Changelog
+
+- **v4.2** — Painel em formato de livro (controles + explicações), textura de fundo estilo questlog, correção do slash `/badazs` (antes `/badasz`).
+- **v4.1** — Localização EN/PT.
+- **v4.0** — Reescrita self-sufficient, painel gráfico de configuração, correção do bug `BadAzs_CycleBlessing` (chamada mas nunca definida na versão anterior).
+- **v3.9** — Última versão baseada em comandos de texto (`/bapconfig`).
