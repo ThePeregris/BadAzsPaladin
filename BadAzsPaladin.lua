@@ -54,21 +54,11 @@ local BadAzsPal_L = {
 CreateFrame("GameTooltip", "BadAzsPal_TooltipScanner", nil, "GameTooltipTemplate")
 BadAzsPal_TooltipScanner:SetOwner(WorldFrame, "ANCHOR_NONE")
 
-local PalIsAttacking = false
-local PalCombatFrame = CreateFrame("Frame")
-PalCombatFrame:RegisterEvent("PLAYER_ENTER_COMBAT")
-PalCombatFrame:RegisterEvent("PLAYER_LEAVE_COMBAT")
-PalCombatFrame:SetScript("OnEvent", function()
-    if event == "PLAYER_ENTER_COMBAT" then PalIsAttacking = true
-    elseif event == "PLAYER_LEAVE_COMBAT" then PalIsAttacking = false end
-end)
-
 local function BadAzsPal_RawCast(spellName)
     if spellName == "Attack" then
-        if not PalIsAttacking and UnitExists("target") and not UnitIsDead("target") then
-            AttackTarget()
-            PalIsAttacking = true
-        end
+        -- Toggle de auto-attack agora mora no Core (BadAzs_StartAttack) - e
+        -- mecanica identica pra qualquer classe, unica fonte de verdade.
+        if BadAzs_StartAttack then BadAzs_StartAttack() end
         return
     end
     CastSpellByName(spellName)
