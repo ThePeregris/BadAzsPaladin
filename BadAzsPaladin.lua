@@ -1,10 +1,10 @@
--- [[ [|cff355E3BB|r]adAzs |cffF58CBAPaladin|r ]]
+-- [[ [|cff355E3BB|r]adAzs |cffF48CBAPaladin|r ]]
 -- Author:  ThePeregris
 -- Version: 4.2 (Self-Sufficient + Book Panel + Localizacao EN/PT)
 -- Target:  Vanilla/Classic WoW (1.12 / LUA 5.0)
 -- Requires: BadAzs Core (apenas utilitarios universais: Vision/Focus/Racial/ManualMouseover)
 
-local BadAzsPalVersion = "|cffF58CBA[BadAzsPaladin v4.2]|r"
+local BadAzsPalVersion = "|cffF48CBA[BadAzsPaladin v4.2]|r"
 
 -- ==========================================================
 -- LOCALIZACAO (EN padrao / PT alternativo)
@@ -228,7 +228,7 @@ function BadAzs_CycleBlessing()
         BadAzsPalDB.BlessIndex = 1
     end
     BadAzsPalDB.Blessing = BlessingList[BadAzsPalDB.BlessIndex]
-    DEFAULT_CHAT_FRAME:AddMessage("|cffF58CBA[BadAzs]|r Bencao (ALT): " .. BadAzsPalDB.Blessing)
+    DEFAULT_CHAT_FRAME:AddMessage("|cffF48CBA[BadAzs]|r Bencao (ALT): " .. BadAzsPalDB.Blessing)
     if BadAzsPal_RefreshPanel then BadAzsPal_RefreshPanel() end
 end
 
@@ -360,7 +360,7 @@ RightPage:SetBackdrop({
 
 local title = Panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 title:SetPoint("TOP", 0, -16)
-title:SetText("|cffF58CBABadAzs Paladin|r")
+title:SetText("|cffF48CBABadAzs Paladin|r")
 
 local closeBtn = CreateFrame("Button", "BadAzsPaladinPanelClose", Panel, "UIPanelCloseButton")
 closeBtn:SetPoint("TOPRIGHT", -4, -4)
@@ -431,7 +431,7 @@ cmdText:SetSpacing(3)
 function BadAzsPal_RefreshPanel()
     local L = BadAzsPal_L[BadAzsPalDB.Locale]
 
-    title:SetText("|cffF58CBA" .. L.title .. "|r")
+    title:SetText("|cffF48CBA" .. L.title .. "|r")
     langBtn:SetText(BadAzsPalDB.Locale)
 
     openerLabel:SetText("|cffffd200" .. L.openerLabel .. "|r")
