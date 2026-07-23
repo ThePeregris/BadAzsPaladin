@@ -1,6 +1,6 @@
 -- [[ [|cff355E3BB|r]adAzs |cffF48CBAPaladin|r ]]
 -- Author:  ThePeregris
--- Version: 4.2 (Self-Sufficient + Book Panel + Localizacao EN/PT)
+-- Version: 4.2 (Self-Sufficient + Book Panel + Localizacao EN/BR)
 -- Target:  Vanilla/Classic WoW (1.12 / LUA 5.0)
 -- Requires: BadAzs Core (apenas utilitarios universais: Vision/Focus/Racial/ManualMouseover)
 
@@ -28,7 +28,7 @@ local BadAzsPal_L = {
             "/badazs pally - Open this panel"
         }
     },
-    PT = {
+    BR = {
         loaded      = "Carregado. Digite /badazs pally para configurar.",
         title       = "BadAzs Paladin",
         openerLabel = "Selo de Abertura",
@@ -457,7 +457,7 @@ function BadAzsPal_RefreshPanel()
 end
 
 langBtn:SetScript("OnClick", function()
-    if BadAzsPalDB.Locale == "EN" then BadAzsPalDB.Locale = "PT" else BadAzsPalDB.Locale = "EN" end
+    if BadAzsPalDB.Locale == "EN" then BadAzsPalDB.Locale = "BR" else BadAzsPalDB.Locale = "EN" end
     BadAzsPal_RefreshPanel()
 end)
 
